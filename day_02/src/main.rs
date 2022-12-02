@@ -22,15 +22,18 @@ fn part1() {
     ]);
     let result_encoder = HashMap::from([
                                (1, 6),
+                               (-2, 6),
                                (-1, 0),
+                               (2, 0),
                                (0, 3)
     ]);
     for line in reader.lines() {
-        let mut line = line.unwrap().split_whitespace();
-        let other = encoder.get(line.next().unwrap()).unwrap();
-        let mine = encoder.get(line.next().unwrap()).unwrap();
-        result += result_encoder.get((mine - other)
-
+        let line = line.unwrap();
+        let mut line_sp = line.split_whitespace();
+        let other = encoder.get(line_sp.next().unwrap()).unwrap();
+        let mine = encoder.get(line_sp.next().unwrap()).unwrap();
+        let diff = mine - other;
+        result += result_encoder.get(&diff).unwrap() + mine;
     };
     println!("Part 1: {}", result);
 }
