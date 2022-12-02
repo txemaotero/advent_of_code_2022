@@ -42,6 +42,28 @@ fn part1() {
 fn part2() {
     let reader = read_file();
     let mut result = 0;
+    let encoder = HashMap::from([
+        ("X", 0), // lose
+        ("Y", 3), // draw
+        ("Z", 6), // win
+        ("A", 1), // Piedra
+        ("B", 2), // Papel
+        ("C", 3)  // Tijeras
+    ]);
+    let result_encoder = HashMap::from([
+                               (6, 1),
+                               (0, 2),
+                               (3, 0)
+    ]);
+    for line in reader.lines() {
+        let line = line.unwrap();
+        let mut line_sp = line.split_whitespace();
+        let other = encoder.get(line_sp.next().unwrap()).unwrap();
+        let result_this = encoder.get(line_sp.next().unwrap()).unwrap();
+        let diff = result_encoder.get(result_this).unwrap();
+        let mine = ((other - 1 + diff) % 3) + 1;
+        result += result_this + mine;
+    };
     println!("Part 2: {}", result);
 }
 
