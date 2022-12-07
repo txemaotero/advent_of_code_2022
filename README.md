@@ -47,3 +47,12 @@ The input is a long string. To obtain the result of part 1 set the variable
 
 - Part 1: Find the index for the firs block of 4 different characters.
 - Part 2: Find the index for the firs block of 14 different characters.
+
+## Day 7
+
+The input is a file system structure. The composite pattern is used to solve
+these problems (it can also be solved with stacks but I used this as an
+opportunity to practise this kind of patterns in rust).
+
+- Part 1: Find the sum of the sizes of directories with sizes less than 100000.
+- Part 2: Find the shortest directory to free up the needed space.
