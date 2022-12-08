@@ -56,3 +56,10 @@ opportunity to practise this kind of patterns in rust).
 
 - Part 1: Find the sum of the sizes of directories with sizes less than 100000.
 - Part 2: Find the shortest directory to free up the needed space.
+
+## Day 8
+
+The input is a matrix with trees' heights.
+
+- Part 1: Find the number of visible trees.
+- Part 2: Find the spot with the largest visibility.
