@@ -63,3 +63,11 @@ The input is a matrix with trees' heights.
 
 - Part 1: Find the number of visible trees.
 - Part 2: Find the spot with the largest visibility.
+
+## Day 9
+
+The input is a set of moves to apply to a rope
+
+- Part 1: Supposing a rope with 2 knots, find the positions that the tail have
+  visited.
+- Part 2: The same but with a rope with 10 knots.
