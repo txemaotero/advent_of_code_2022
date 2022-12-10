@@ -71,3 +71,11 @@ The input is a set of moves to apply to a rope
 - Part 1: Supposing a rope with 2 knots, find the positions that the tail have
   visited.
 - Part 2: The same but with a rope with 10 knots.
+
+## Day 10
+
+The input is a series of commands to control a display
+
+- Part 1: Add the product of a value and the cycle number every 40 cycles.
+- Part 2: Read the commands to light up the pixels of the display if the cycle
+  match with the CRT.
