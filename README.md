@@ -79,3 +79,10 @@ The input is a series of commands to control a display
 - Part 1: Add the product of a value and the cycle number every 40 cycles.
 - Part 2: Read the commands to light up the pixels of the display if the cycle
   match with the CRT.
+
+## Day 11
+
+Monkey game
+
+- Part 1: Items processed after 20 rounds.
+- Part 2: Items processed after 10000 rounds.
