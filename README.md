@@ -86,3 +86,16 @@ Monkey game
 
 - Part 1: Items processed after 20 rounds.
 - Part 2: Items processed after 10000 rounds.
+
+## Day 12
+
+Path finding allowing only maximum 1 height unit increase at each step.
+
+- Part 1: Find shortest path from a start point.
+- Part 2: Find the starting point with the shortest path. This could be
+  implemented more efficiently maybe saving the path from visited nodes but 3
+  seconds of runtime is OK.
+
+## Day 13
+
+Compare pairs of list of ints or lists. Again composite pattern.
