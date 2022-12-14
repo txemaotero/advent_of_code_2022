@@ -102,3 +102,10 @@ Compare pairs of list of ints or lists. Again composite pattern.
 
 - Part 1: Find how many pairs are in the correct order
 - Part 2: Sort all of the inputs and find the indexes of two auxiliary flags.
+
+## Day 14
+
+Sand falling in the cave.
+
+- Part 1: How many grains are stopped until one reaches the floor.
+- Part 2: How many grains until the reach the source.
