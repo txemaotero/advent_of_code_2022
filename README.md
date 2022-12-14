@@ -99,3 +99,6 @@ Path finding allowing only maximum 1 height unit increase at each step.
 ## Day 13
 
 Compare pairs of list of ints or lists. Again composite pattern.
+
+- Part 1: Find how many pairs are in the correct order
+- Part 2: Sort all of the inputs and find the indexes of two auxiliary flags.
