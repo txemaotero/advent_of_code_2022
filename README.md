@@ -109,3 +109,10 @@ Sand falling in the cave.
 
 - Part 1: How many grains are stopped until one reaches the floor.
 - Part 2: How many grains until the reach the source.
+
+## Day 15
+
+Sensors and closes beacon position.
+
+- Part 1: Find the imposible region in a single line.
+- Part 2: Find the only spot where a beacon can be.
