@@ -12,7 +12,6 @@ struct Sensor {
 impl Sensor {
     fn from_line(line: &str) -> Self {
         let re = Regex::new(r"x=\s*(-?\d+),\s*y=(-?\d+):.*x=\s*(-?\d+),\s*y=(-?\d+)").unwrap();
-        // let re = Regex::new(r"x=\s*(-?\d+).*").unwrap();
         let caps = re.captures(line).unwrap();
         let position = [caps[1].parse().unwrap(), caps[2].parse().unwrap()];
         let closest_becon = [caps[3].parse().unwrap(), caps[4].parse().unwrap()];

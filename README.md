@@ -116,3 +116,11 @@ Sensors and closes beacon position.
 
 - Part 1: Find the imposible region in a single line.
 - Part 2: Find the only spot where a beacon can be.
+
+## Day 16
+
+Find optimal path to open valves
+
+- 30 minutes to open valves one person.
+- 26 minutes to open valves one person and one elephant. This could be
+  optimized.
