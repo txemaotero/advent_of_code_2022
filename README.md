@@ -119,8 +119,16 @@ Sensors and closes beacon position.
 
 ## Day 16
 
-Find optimal path to open valves
+Find optimal path to open valves.
 
-- 30 minutes to open valves one person.
-- 26 minutes to open valves one person and one elephant. This could be
+- Part 1: 30 minutes to open valves one person.
+- Part 2: 26 minutes to open valves one person and one elephant. This could be
   optimized.
+
+## Day 17
+
+Tetris.
+
+- Part 1: Height after 2022 pieces.
+- Part 2: Height after 1e12 pieces.
+
