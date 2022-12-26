@@ -132,3 +132,9 @@ Tetris.
 - Part 1: Height after 2022 pieces.
 - Part 2: Height after 1e12 pieces.
 
+## Day 18
+
+Lava droplets. Surface area.
+
+- Part 1: Count all the surface area (inside include)
+- Part 2: only exterior area.
