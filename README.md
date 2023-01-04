@@ -138,3 +138,10 @@ Lava droplets. Surface area.
 
 - Part 1: Count all the surface area (inside include)
 - Part 2: only exterior area.
+
+## Day 19
+
+Find optimal strategy to build robots and collect geodes.
+
+- Part 1: 24 minutes of recollection time
+- Part 2: 32 minutes of recollection time
