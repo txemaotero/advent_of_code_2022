@@ -145,3 +145,10 @@ Find optimal strategy to build robots and collect geodes.
 
 - Part 1: 24 minutes of recollection time
 - Part 2: 32 minutes of recollection time
+
+## Day 20
+
+Mix a set of numbers in a cyclic vector by moving elements.
+
+- Part 1: 1 mix.
+- Part 2: 10 mixes and multiply the numbers of the vectors.

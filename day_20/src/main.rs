@@ -2,8 +2,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 
-
-
 struct CyclicVector {
     data: Vec<isize>,
 }
@@ -11,53 +9,41 @@ struct CyclicVector {
 impl CyclicVector {
     fn new(data: Vec<isize>) -> CyclicVector {
         CyclicVector {
-            data
+            data,
         }
     }
 
-    fn mix(&mut self) {
+    fn mix(&mut self, n_times: usize) {
         let len = self.data.len();
         let mut positions = (0..len).collect::<Vec<_>>();
-        for i in 0..len {
-            let xi = self.data[i] % (len - 1) as isize;
-            println!("xi: {}", xi);
-            if xi == 0 {
-                continue;
-            }
-            let mut global_shift = 0;
-            let pi = positions[i];
-            if xi < 0 && (pi as isize + xi) <= 0 {
-                global_shift -= 1;
-                println!("-1");
-            } else if xi > 0 && (pi as isize + xi) >= len as isize {
-                global_shift += 1;
-                println!("+1");
-            } else {
-                println!("0");
-            }
-            let direction = xi.signum();
-            let is_positive = if direction == 1 {true} else {false};
-
-            // println!("{}", offset);
-            let new_pos = self.to_positive_index(pi as isize + xi);
-            for j in 0..len {
-                if i == j {
+        for _ in 0..n_times {
+            for i in 0..len {
+                let xi = self.data[i] % (len - 1) as isize;
+                if xi == 0 {
                     continue;
                 }
-                let pj = positions[j];
-                // println!("pj: {}, a: {}, b: {}, direction: {} -> {}", pj_with_offset, pi_with_offset, new_pos, direction, self.is_between(pj_with_offset, pi_with_offset, new_pos, is_positive));
-                if self.is_between(pj, pi, new_pos, is_positive) {
-                    positions[j] = self.to_positive_index(pj as isize + direction * (-1));
+                let pi = positions[i];
+                let to_move: isize = if (xi < 0) && (pi as isize + xi <= 0) {
+                    len as isize - 1 + xi
+                } else if (xi > 0) && (pi as isize + xi >= len as isize) {
+                    -(len as isize - 1 - xi)
+                } else {
+                    xi
+                };
+                let direction = to_move.signum();
+                let new_pos = (pi as isize + to_move) as usize;
+                for j in 0..len {
+                    let pj = positions[j];
+                    if j == i {
+                        continue;
+                    }
+                    if self.is_between(pj, pi, new_pos) {
+                        positions[j] = (positions[j] as isize - direction) as usize;
+                    }
                 }
+                positions[i] = new_pos;
             }
-            positions[i] = new_pos;
-            for j in 0..len {
-                positions[j] = self.to_positive_index(positions[j] as isize + global_shift);
-            }
-            println!("positions: {:?}", &positions);
-            println!("After {} moves: {:?}", i +1, self.build_new_data(&positions));
         }
-        println!("positions: {:?}", positions);
         // build the new vector
         let new_vec = self.build_new_data(&positions);
         self.data = new_vec;
@@ -71,34 +57,12 @@ impl CyclicVector {
         new_vec
     }
 
-    fn is_between(&self, x: usize, a: usize, b: usize, positive_direction: bool) -> bool {
-        if positive_direction {
-            if a < b {
-                a < x && x <= b
-            } else {
-                !(b <= x && x < a)
-            }
+    fn is_between(&self, x: usize, a: usize, b: usize) -> bool {
+        if a < b {
+            a < x && x <= b
         } else {
-            if a < b {
-                !(a <= x && x < b)
-            } else {
-                b <= x && x < a
-            }
+            b <= x && x < a
         }
-    }
-
-    fn to_positive_index(&self, index: isize) -> usize {
-        let len = self.data.len();
-        if index >= 0 && (index as usize) < len {
-            return index as usize;
-        } else if index >= len as isize {
-            return (index % len as isize) as usize;
-        }
-        let mut new_index = index;
-        while new_index < 0 {
-            new_index += len as isize;
-        }
-        new_index as usize
     }
 
     fn get(&self, index: isize) -> isize {
@@ -113,7 +77,6 @@ impl CyclicVector {
 
 fn read_file() -> BufReader<File> {
     let file = File::open("../input.txt").unwrap();
-    let file = File::open("../example.txt").unwrap();
     BufReader::new(file)
 }
 
@@ -130,18 +93,22 @@ fn get_vector() -> Vec<isize> {
 
 fn part1() {
     let mut vector = CyclicVector::new(get_vector());
-    println!("vector init: {:?}", vector.data);
-    vector.mix();
-    println!("vector end: {:?}", vector.data);
+    vector.mix(1);
 
-    let result = vector.get(1000) + vector.get(2000) + vector.get(3000);
+    let zero_index = vector.data.iter().position(|&r| r == 0).unwrap();
+    let result: isize = (1..=3).map(|i| vector.get((1000*i + zero_index) as isize)).sum();
     println!("Part 1: {}", result);
 }
 
 
 fn part2() {
-    let reader = read_file();
-    let mut result = 0;
+    let vector = get_vector();
+    let mut vector = CyclicVector::new(vector.iter().map(|&x| x*811589153).collect());
+    vector.mix(10);
+
+    let zero_index = vector.data.iter().position(|&r| r == 0).unwrap();
+    let result: isize = (1..=3).map(|i| vector.get((1000*i + zero_index) as isize)).sum();
+
     println!("Part 2: {}", result);
 }
 
