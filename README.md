@@ -152,3 +152,10 @@ Mix a set of numbers in a cyclic vector by moving elements.
 
 - Part 1: 1 mix.
 - Part 2: 10 mixes and multiply the numbers of the vectors.
+
+## Day 21
+
+Operations with monkey yelling numbers and operations.
+
+- Part 1: Result of root.
+- Part 2: Number of humn to equal root numbers.
