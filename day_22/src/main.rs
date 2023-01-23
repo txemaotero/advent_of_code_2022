@@ -1,8 +1,16 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-const FACES_COORDS: [(usize, usize); 6] = [(0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (3, 0)];
+const FACES_COORDS: [[usize; 2]; 6] = [[3, 0], [3, 1], [2, 1], [0, 2], [1, 1], [1, 2]];
 
+const EDGE_TRANSITION: [[[usize; 2]; 4]; 6] = [
+    [[3, 2], [1, 3], [2, 3], [4, 3]],
+    [[3, 1], [5, 1], [2, 0], [0, 1]],
+    [[1, 2], [5, 0], [4, 0], [0, 2]],
+    [[5, 2], [1, 0], [0, 0], [4, 2]],
+    [[2, 2], [5, 3], [3, 3], [0, 3]],
+    [[2, 1], [1, 1], [3, 0], [4, 1]],
+];
 
 struct Playground {
     grid: Vec<Vec<char>>,
@@ -24,7 +32,6 @@ impl Playground {
     }
 
     fn add_row(&mut self, row: Vec<char>) {
-
         self.rows_limits.push(self.get_row_limits(&row));
         let row_index = self.grid.len();
         for (col_index, ch) in row.iter().enumerate() {
@@ -63,19 +70,21 @@ impl Playground {
         let (steps, final_turn) = command;
         for _ in 0..steps {
             match self.move_once() {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => break,
             }
         }
         match final_turn {
             'L' => {
                 self.orientation = [-self.orientation[1], self.orientation[0]];
-            },
+            }
             'R' => {
                 self.orientation = [self.orientation[1], -self.orientation[0]];
-            },
-            'N' => {},
-            _ => {panic!("Invalid final turn: {}", final_turn)},
+            }
+            'N' => {}
+            _ => {
+                panic!("Invalid final turn: {}", final_turn)
+            }
         };
     }
 
@@ -118,67 +127,74 @@ impl Playground {
         } else {
             panic!("Invalid orientation: {:?}", self.orientation);
         };
-        (self.position[0] + 1)*1000 + (self.position[1] + 1) * 4 + or_value
+        (self.position[0] + 1) * 1000 + (self.position[1] + 1) * 4 + or_value
     }
 
     fn get_face_id(&self) -> usize {
         let [row, col] = self.position;
         let col_face = col / 50;
         let row_face = row / 50;
-        FACES_COORDS.iter().position(|(r, c)| *r == row_face && *c == col_face).unwrap()
+        FACES_COORDS
+            .iter()
+            .position(|(r, c)| *r == row_face && *c == col_face)
+            .unwrap()
     }
 
     fn get_next_face(&self) -> usize {
         let face_id = self.get_face_id();
         if face_id == 0 {
-            if self.orientation[0] == 1 {          // down
-                2
-            } else if self.orientation[0] == -1 {  // up
-                5
-            } else if self.orientation[1] == 1 {   // right
-                4
-            } else if self.orientation[1] == -1 {  // left
-                1
+            if self.orientation[0] == 1 {
+                // down
+                return 2;
+            } else if self.orientation[0] == -1 {
+                // up
+                return 5;
+            } else if self.orientation[1] == 1 {
+                // right
+                return 4;
+            } else if self.orientation[1] == -1 {
+                // left
+                return 1;
             } else {
                 panic!("Invalid orientation: {:?}", self.orientation);
             }
         } else if face_id == 1 {
-            if self.orientation[0] == 1 {          // down
-            } else if self.orientation[0] == -1 {  // up
-            } else if self.orientation[1] == 1 {   // right
-            } else if self.orientation[1] == -1 {  // left
+            if self.orientation[0] == 1 { // down
+            } else if self.orientation[0] == -1 { // up
+            } else if self.orientation[1] == 1 { // right
+            } else if self.orientation[1] == -1 { // left
             } else {
                 panic!("Invalid orientation: {:?}", self.orientation);
             }
         } else if face_id == 2 {
-            if self.orientation[0] == 1 {          // down
-            } else if self.orientation[0] == -1 {  // up
-            } else if self.orientation[1] == 1 {   // right
-            } else if self.orientation[1] == -1 {  // left
+            if self.orientation[0] == 1 { // down
+            } else if self.orientation[0] == -1 { // up
+            } else if self.orientation[1] == 1 { // right
+            } else if self.orientation[1] == -1 { // left
             } else {
                 panic!("Invalid orientation: {:?}", self.orientation);
             }
         } else if face_id == 3 {
-            if self.orientation[0] == 1 {          // down
-            } else if self.orientation[0] == -1 {  // up
-            } else if self.orientation[1] == 1 {   // right
-            } else if self.orientation[1] == -1 {  // left
+            if self.orientation[0] == 1 { // down
+            } else if self.orientation[0] == -1 { // up
+            } else if self.orientation[1] == 1 { // right
+            } else if self.orientation[1] == -1 { // left
             } else {
                 panic!("Invalid orientation: {:?}", self.orientation);
             }
         } else if face_id == 4 {
-            if self.orientation[0] == 1 {          // down
-            } else if self.orientation[0] == -1 {  // up
-            } else if self.orientation[1] == 1 {   // right
-            } else if self.orientation[1] == -1 {  // left
+            if self.orientation[0] == 1 { // down
+            } else if self.orientation[0] == -1 { // up
+            } else if self.orientation[1] == 1 { // right
+            } else if self.orientation[1] == -1 { // left
             } else {
                 panic!("Invalid orientation: {:?}", self.orientation);
             }
         } else if face_id == 5 {
-            if self.orientation[0] == 1 {          // down
-            } else if self.orientation[0] == -1 {  // up
-            } else if self.orientation[1] == 1 {   // right
-            } else if self.orientation[1] == -1 {  // left
+            if self.orientation[0] == 1 { // down
+            } else if self.orientation[0] == -1 { // up
+            } else if self.orientation[1] == 1 { // right
+            } else if self.orientation[1] == -1 { // left
             } else {
                 panic!("Invalid orientation: {:?}", self.orientation);
             }
@@ -188,19 +204,22 @@ impl Playground {
     }
 }
 
-
 impl std::fmt::Display for Playground {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         for (row_index, row) in self.grid.iter().enumerate() {
             for (col_index, ch) in row.iter().enumerate() {
                 if row_index == self.position[0] && col_index == self.position[1] {
-                    write!(f, "{}", match self.orientation {
-                        [1, 0] => 'v',
-                        [0, -1] => '<',
-                        [-1, 0] => '^',
-                        [0, 1] => '>',
-                        _ => panic!("Invalid orientation: {:?}", self.orientation),
-                    })?;
+                    write!(
+                        f,
+                        "{}",
+                        match self.orientation {
+                            [1, 0] => 'v',
+                            [0, -1] => '<',
+                            [-1, 0] => '^',
+                            [0, 1] => '>',
+                            _ => panic!("Invalid orientation: {:?}", self.orientation),
+                        }
+                    )?;
                 } else {
                     write!(f, "{}", ch)?;
                 }
@@ -210,6 +229,150 @@ impl std::fmt::Display for Playground {
         Ok(())
     }
 }
+
+struct Grid {
+    grid: Vec<Vec<char>>,
+}
+
+impl Grid {
+    fn new() -> Grid {
+        Grid { grid: vec![] }
+    }
+
+    fn add_row(&mut self, row: Vec<char>) {
+        self.grid.push(row);
+    }
+}
+
+struct CubicPlayground {
+    faces: [Grid; 6],
+    // conections[i][j] = [k, l, r] => Face i, side j is connected to face k, side l and r 90
+    // degrees rotations are needed to match the sides.
+    position: [usize; 2], // [row, col]
+    orientation: [isize; 2],
+    _side: usize,
+    // Sides
+    // 0: bottom
+    // 1: right
+    // 2: top
+    // 3: left
+}
+
+impl CubicPlayground {
+    fn new(
+        faces: [Grid; 6],
+        position: [usize; 2],
+        orientation: [isize; 2],
+    ) -> CubicPlayground {
+        let _side = faces[0].grid.len();
+        CubicPlayground {
+            faces,
+            position,
+            orientation,
+            _side,
+        }
+    }
+
+    fn apply_command(&mut self, command: (usize, char)) {
+        let (steps, final_turn) = command;
+        for _ in 0..steps {
+            match self.move_once() {
+                Ok(_) => {}
+                Err(_) => break,
+            }
+        }
+        match final_turn {
+            'L' => {
+                self.orientation = [-self.orientation[1], self.orientation[0]];
+            }
+            'R' => {
+                self.orientation = [self.orientation[1], -self.orientation[0]];
+            }
+            'N' => {}
+            _ => {
+                panic!("Invalid final turn: {}", final_turn)
+            }
+        };
+    }
+
+    fn move_once(&mut self) -> Result<(), ()> {
+        // Usar que para saltar de uno a otro se haría primero como si estuviesen contiguos y luego
+        // se plicarían las rotaciones necesarias para ir a la cara correcta. Con el movimiento al
+        // contiguo cambio de lado l a (l+2)%4. Después con cada rotación cambio de l a (l+1)%4. y
+        // las coordenadas (i, j) (ya en el contiguo) se transforman en (S-j, i).
+        let new_position, new_orientation = self.get_new_state();
+
+        let element = self.faces[self.position[0]].grid[self.position[1]][self.position[2]];
+        if element == '#' {
+            return Err(());
+        }
+        self.position = new_position;
+        self.orientation = new_orientation;
+        Ok(())
+    }
+
+    fn get_new_state(&self) -> ([usize; 2], [isize; 2]) {
+        let [current_row, current_col] = self.position;
+        let [current_orientation_x, current_orientation_y] = self.orientation;
+        let current_face_coords = [current_row/self._side, current_col/self._side];
+        let current_face = FACES_COORDS.iter().position(|&x| x == current_face_coords).unwrap();
+        let [shifted_row, shifted_col] = [current_row % self._side, current_col % self._side];
+        let (new_position, new_orientation);
+        match self.get_limit_side(shifted_row, shifted_col) {
+            Some(limit_id) => {
+                if limit_id == 0 && current_orientation_y == 1 {
+                    let [new_face, new_edge] = EDGE_TRANSITION[current_face][limit_id];
+                    let edge_diff = (limit_id as isize - new_edge as isize + 4) % 4;
+                    // 3 (rigth)
+                    // 1 (left)
+                    // 2 (opposite)
+                    // 0 (same)
+                    if edge_diff == 0 {
+                        new_orientation = [-current_orientation_y, -current_orientation_x];
+                        new_position = [current_row, self._side - 1 - current_col];
+                    } else if edge_diff == 2 {
+                        new_orientation = [current_orientation_y, current_orientation_x];
+                        new_position = [self._side - 1 - current_row, current_col];
+                    } else if edge_diff == 1 {
+                        new_orientation = [current_orientation_y, current_orientation_x];
+                        new_position = [self._side - 1 - current_row, current_col];
+                    } else if edge_diff == 3 {
+                    }
+
+                }
+            },
+            None => {
+                new_position= [
+                    (current_row as isize + current_orientation_x) as usize,
+                    (current_col as isize + current_orientation_y) as usize,
+                ];
+                new_orientation  = [current_orientation_x, current_orientation_y];
+            }
+        }
+        return (new_position, new_orientation);
+    }
+
+
+    fn get_limit_side(&self, row: usize, col: usize) -> Option<usize> {
+        if row == 0 {
+            Some(2)
+        } else if row == self._side - 1 {
+            Some(0)
+        } else if col == 0 {
+            Some(3)
+        } else if col == self._side - 1 {
+            Some(1)
+        } else {
+            None
+        }
+    }
+}
+
+// cube
+// [0, 1, 1]
+// [0, 1, 0]
+// [1, 1, 0]
+// [1, 0, 0]
 
 fn get_pbc_position(position: usize, direction: isize, limits: [usize; 2]) -> usize {
     if position == limits[0] && direction == -1 {
@@ -264,7 +427,6 @@ fn parse_commands(commands: &String) -> Vec<(usize, char)> {
     result
 }
 
-
 fn part1() {
     let (mut playground, commands) = parse_input();
     // println!("{}", playground);
@@ -282,7 +444,6 @@ fn part2() {
     let mut result = 0;
     println!("Part 2: {}", result);
 }
-
 
 fn main() {
     part1();
