@@ -1,7 +1,8 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-const FACES_COORDS: [[usize; 2]; 6] = [[3, 0], [3, 1], [2, 1], [0, 2], [1, 1], [1, 2]];
+// const FACES_COORDS: [[usize; 2]; 6] = [[3, 0], [3, 1], [2, 1], [0, 2], [1, 1], [1, 2]];
+const FACES_COORDS: [[usize; 2]; 6] = [[0, 2], [0, 1], [1, 1], [3, 0], [2, 1], [2, 0]];
 
 const EDGE_TRANSITION: [[[usize; 2]; 4]; 6] = [
     [[3, 2], [1, 3], [2, 3], [4, 3]],
@@ -91,7 +92,6 @@ impl Playground {
     fn move_once(&mut self) -> Result<(), ()> {
         let index = if self.orientation[0] != 0 { 0 } else { 1 };
 
-        // let position = self.position[(index + 1) % 2];
         let position = self.position[index];
         let limits;
         if index == 0 {
@@ -130,78 +130,6 @@ impl Playground {
         (self.position[0] + 1) * 1000 + (self.position[1] + 1) * 4 + or_value
     }
 
-    fn get_face_id(&self) -> usize {
-        let [row, col] = self.position;
-        let col_face = col / 50;
-        let row_face = row / 50;
-        FACES_COORDS
-            .iter()
-            .position(|(r, c)| *r == row_face && *c == col_face)
-            .unwrap()
-    }
-
-    fn get_next_face(&self) -> usize {
-        let face_id = self.get_face_id();
-        if face_id == 0 {
-            if self.orientation[0] == 1 {
-                // down
-                return 2;
-            } else if self.orientation[0] == -1 {
-                // up
-                return 5;
-            } else if self.orientation[1] == 1 {
-                // right
-                return 4;
-            } else if self.orientation[1] == -1 {
-                // left
-                return 1;
-            } else {
-                panic!("Invalid orientation: {:?}", self.orientation);
-            }
-        } else if face_id == 1 {
-            if self.orientation[0] == 1 { // down
-            } else if self.orientation[0] == -1 { // up
-            } else if self.orientation[1] == 1 { // right
-            } else if self.orientation[1] == -1 { // left
-            } else {
-                panic!("Invalid orientation: {:?}", self.orientation);
-            }
-        } else if face_id == 2 {
-            if self.orientation[0] == 1 { // down
-            } else if self.orientation[0] == -1 { // up
-            } else if self.orientation[1] == 1 { // right
-            } else if self.orientation[1] == -1 { // left
-            } else {
-                panic!("Invalid orientation: {:?}", self.orientation);
-            }
-        } else if face_id == 3 {
-            if self.orientation[0] == 1 { // down
-            } else if self.orientation[0] == -1 { // up
-            } else if self.orientation[1] == 1 { // right
-            } else if self.orientation[1] == -1 { // left
-            } else {
-                panic!("Invalid orientation: {:?}", self.orientation);
-            }
-        } else if face_id == 4 {
-            if self.orientation[0] == 1 { // down
-            } else if self.orientation[0] == -1 { // up
-            } else if self.orientation[1] == 1 { // right
-            } else if self.orientation[1] == -1 { // left
-            } else {
-                panic!("Invalid orientation: {:?}", self.orientation);
-            }
-        } else if face_id == 5 {
-            if self.orientation[0] == 1 { // down
-            } else if self.orientation[0] == -1 { // up
-            } else if self.orientation[1] == 1 { // right
-            } else if self.orientation[1] == -1 { // left
-            } else {
-                panic!("Invalid orientation: {:?}", self.orientation);
-            }
-        }
-        let next_face_id = (face_id + 1) % 6;
-        next_face_id
-    }
 }
 
 impl std::fmt::Display for Playground {
@@ -219,7 +147,7 @@ impl std::fmt::Display for Playground {
                             [0, 1] => '>',
                             _ => panic!("Invalid orientation: {:?}", self.orientation),
                         }
-                    )?;
+                        )?;
                 } else {
                     write!(f, "{}", ch)?;
                 }
@@ -230,22 +158,8 @@ impl std::fmt::Display for Playground {
     }
 }
 
-struct Grid {
-    grid: Vec<Vec<char>>,
-}
-
-impl Grid {
-    fn new() -> Grid {
-        Grid { grid: vec![] }
-    }
-
-    fn add_row(&mut self, row: Vec<char>) {
-        self.grid.push(row);
-    }
-}
-
 struct CubicPlayground {
-    faces: [Grid; 6],
+    grid: Vec<Vec<char>>,
     // conections[i][j] = [k, l, r] => Face i, side j is connected to face k, side l and r 90
     // degrees rotations are needed to match the sides.
     position: [usize; 2], // [row, col]
@@ -260,16 +174,26 @@ struct CubicPlayground {
 
 impl CubicPlayground {
     fn new(
-        faces: [Grid; 6],
+        grid: Vec<Vec<char>>,
         position: [usize; 2],
         orientation: [isize; 2],
-    ) -> CubicPlayground {
-        let _side = faces[0].grid.len();
+        side: usize,
+        ) -> CubicPlayground {
         CubicPlayground {
-            faces,
+            grid,
             position,
             orientation,
-            _side,
+            _side: side,
+        }
+    }
+
+    fn set_initial_state(&mut self) {
+        self.orientation = [0, 1];
+        for (index, char) in self.grid[0].iter().enumerate() {
+            if *char == '.' {
+                self.position = [0, index];
+                break;
+            }
         }
     }
 
@@ -300,9 +224,9 @@ impl CubicPlayground {
         // se plicarían las rotaciones necesarias para ir a la cara correcta. Con el movimiento al
         // contiguo cambio de lado l a (l+2)%4. Después con cada rotación cambio de l a (l+1)%4. y
         // las coordenadas (i, j) (ya en el contiguo) se transforman en (S-j, i).
-        let new_position, new_orientation = self.get_new_state();
+        let (new_position, new_orientation) = self.get_new_state();
 
-        let element = self.faces[self.position[0]].grid[self.position[1]][self.position[2]];
+        let element = self.grid[new_position[0]][new_position[1]];
         if element == '#' {
             return Err(());
         }
@@ -313,40 +237,59 @@ impl CubicPlayground {
 
     fn get_new_state(&self) -> ([usize; 2], [isize; 2]) {
         let [current_row, current_col] = self.position;
-        let [current_orientation_x, current_orientation_y] = self.orientation;
+        println!("Current row: {}, col: {}", current_row, current_col);
         let current_face_coords = [current_row/self._side, current_col/self._side];
-        let current_face = FACES_COORDS.iter().position(|&x| x == current_face_coords).unwrap();
+        println!("current_face_coords: {:?}", current_face_coords);
+        let mut current_face = FACES_COORDS.iter().position(|&x| x == current_face_coords).unwrap();
         let [shifted_row, shifted_col] = [current_row % self._side, current_col % self._side];
-        let (new_position, new_orientation);
+        let mut new_position;
+        let mut new_orientation = self.orientation;
         match self.get_limit_side(shifted_row, shifted_col) {
             Some(limit_id) => {
-                if limit_id == 0 && current_orientation_y == 1 {
-                    let [new_face, new_edge] = EDGE_TRANSITION[current_face][limit_id];
-                    let edge_diff = (limit_id as isize - new_edge as isize + 4) % 4;
-                    // 3 (rigth)
-                    // 1 (left)
-                    // 2 (opposite)
-                    // 0 (same)
-                    if edge_diff == 0 {
-                        new_orientation = [-current_orientation_y, -current_orientation_x];
-                        new_position = [current_row, self._side - 1 - current_col];
-                    } else if edge_diff == 2 {
-                        new_orientation = [current_orientation_y, current_orientation_x];
-                        new_position = [self._side - 1 - current_row, current_col];
-                    } else if edge_diff == 1 {
-                        new_orientation = [current_orientation_y, current_orientation_x];
-                        new_position = [self._side - 1 - current_row, current_col];
-                    } else if edge_diff == 3 {
-                    }
-
+                let [new_face, new_edge] = EDGE_TRANSITION[current_face][limit_id];
+                let edge_diff = (limit_id as isize - new_edge as isize + 2) % 4;
+                current_face = new_face;
+                // 0 (no rotation)
+                // 1 (-90)
+                // 2 (-180)
+                // 3 (-270)
+                for _ in 0..edge_diff {
+                    new_orientation = [new_orientation[1], -new_orientation[0]];
                 }
-            },
+                if edge_diff == 0 {
+                    new_position = [
+                        (shifted_row as isize - self._side as isize * self.orientation[0]) as usize,
+                        (shifted_col as isize - self._side as isize * self.orientation[1]) as usize
+                    ];
+                } else if edge_diff == 1 {
+                    new_position = [
+                        (shifted_col as isize - self.orientation[1] * self._side as isize) as usize,
+                        (self._side - shifted_row) * self.orientation[1].abs() as usize + shifted_row * self.orientation[0].abs() as usize
+                    ];
+                } else if edge_diff == 2 {
+                    new_position = [
+                        (self.orientation[0] * shifted_row as isize + self.orientation[1].abs()*(self._side - shifted_row) as isize) as usize,
+                        (self.orientation[1] * shifted_col as isize + self.orientation[0].abs()*(self._side - shifted_col) as isize) as usize
+                    ];
+                } else if edge_diff == 3 {
+                    new_position = [
+                        (self.orientation[0] * (self._side - shifted_col) as isize) as usize + self.orientation[1].abs() as usize * shifted_col,
+                        shifted_row
+                    ];
+                } else {
+                    panic!("Invalid edge_diff: {}", edge_diff);
+                }
+                let [face_row, face_col] = FACES_COORDS[current_face];
+                new_position = [
+                    new_position[0] + face_row * self._side,
+                    new_position[1] + face_col * self._side
+                ];
+            }
             None => {
                 new_position= [
-                    (current_row as isize + current_orientation_x) as usize,
-                    (current_col as isize + current_orientation_y) as usize,
+                    (current_row as isize + self.orientation[0]) as usize,
+                    (current_col as isize + self.orientation[1]) as usize,
                 ];
-                new_orientation  = [current_orientation_x, current_orientation_y];
             }
         }
         return (new_position, new_orientation);
@@ -366,13 +309,23 @@ impl CubicPlayground {
             None
         }
     }
-}
 
-// cube
-// [0, 1, 1]
-// [0, 1, 0]
-// [1, 1, 0]
-// [1, 0, 0]
+    fn get_score(&self) -> usize {
+        let or_value = if self.orientation[0] == 1 {
+            1
+        } else if self.orientation[1] == 1 {
+            0
+        } else if self.orientation[0] == -1 {
+            3
+        } else if self.orientation[1] == -1 {
+            2
+        } else {
+            panic!("Invalid orientation: {:?}", self.orientation);
+        };
+        (self.position[0] + 1) * 1000 + (self.position[1] + 1) * 4 + or_value
+    }
+
+}
 
 fn get_pbc_position(position: usize, direction: isize, limits: [usize; 2]) -> usize {
     if position == limits[0] && direction == -1 {
@@ -410,6 +363,27 @@ fn parse_input() -> (Playground, Vec<(usize, char)>) {
     (playground, commands)
 }
 
+fn parse_input_part2() -> (CubicPlayground, Vec<(usize, char)>) {
+    let mut grid = Vec::new();
+    let lines = read_file().lines();
+    let mut read_commands = false;
+    let mut commands = Vec::new();
+    for line in lines {
+        let line = line.unwrap();
+        if read_commands {
+            commands = parse_commands(&line);
+            break;
+        }
+        if line.trim().is_empty() {
+            read_commands = true;
+            continue;
+        }
+        grid.push(line.chars().collect());
+    }
+    let playground = CubicPlayground::new(grid, [0, 0], [0, 1], 50);
+    (playground, commands)
+}
+
 fn parse_commands(commands: &String) -> Vec<(usize, char)> {
     let mut result = Vec::new();
     let mut aux_num = String::new();
@@ -440,9 +414,12 @@ fn part1() {
 }
 
 fn part2() {
-    let reader = read_file();
-    let mut result = 0;
-    println!("Part 2: {}", result);
+    let (mut playground, commands) = parse_input_part2();
+    playground.set_initial_state();
+    for command in commands {
+        playground.apply_command(command);
+    }
+    println!("Part 2: {}", playground.get_score());
 }
 
 fn main() {
