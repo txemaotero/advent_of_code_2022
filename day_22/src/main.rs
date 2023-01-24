@@ -1,16 +1,15 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-// const FACES_COORDS: [[usize; 2]; 6] = [[3, 0], [3, 1], [2, 1], [0, 2], [1, 1], [1, 2]];
 const FACES_COORDS: [[usize; 2]; 6] = [[0, 2], [0, 1], [1, 1], [3, 0], [2, 1], [2, 0]];
 
 const EDGE_TRANSITION: [[[usize; 2]; 4]; 6] = [
-    [[3, 2], [1, 3], [2, 3], [4, 3]],
-    [[3, 1], [5, 1], [2, 0], [0, 1]],
-    [[1, 2], [5, 0], [4, 0], [0, 2]],
-    [[5, 2], [1, 0], [0, 0], [4, 2]],
-    [[2, 2], [5, 3], [3, 3], [0, 3]],
-    [[2, 1], [1, 1], [3, 0], [4, 1]],
+    [[2, 1], [4, 1], [3, 0], [1, 1]],
+    [[2, 2], [0, 3], [3, 3], [5, 3]],
+    [[4, 2], [0, 0], [1, 0], [5, 2]],
+    [[0, 2], [4, 0], [5, 0], [1, 2]],
+    [[3, 1], [0, 1], [2, 0], [5, 1]],
+    [[3, 2], [4, 3], [2, 3], [1, 3]],
 ];
 
 struct Playground {
@@ -160,11 +159,9 @@ impl std::fmt::Display for Playground {
 
 struct CubicPlayground {
     grid: Vec<Vec<char>>,
-    // conections[i][j] = [k, l, r] => Face i, side j is connected to face k, side l and r 90
-    // degrees rotations are needed to match the sides.
     position: [usize; 2], // [row, col]
     orientation: [isize; 2],
-    _side: usize,
+    side_length: usize,
     // Sides
     // 0: bottom
     // 1: right
@@ -183,7 +180,7 @@ impl CubicPlayground {
             grid,
             position,
             orientation,
-            _side: side,
+            side_length: side,
         }
     }
 
@@ -220,10 +217,6 @@ impl CubicPlayground {
     }
 
     fn move_once(&mut self) -> Result<(), ()> {
-        // Usar que para saltar de uno a otro se haría primero como si estuviesen contiguos y luego
-        // se plicarían las rotaciones necesarias para ir a la cara correcta. Con el movimiento al
-        // contiguo cambio de lado l a (l+2)%4. Después con cada rotación cambio de l a (l+1)%4. y
-        // las coordenadas (i, j) (ya en el contiguo) se transforman en (S-j, i).
         let (new_position, new_orientation) = self.get_new_state();
 
         let element = self.grid[new_position[0]][new_position[1]];
@@ -237,17 +230,16 @@ impl CubicPlayground {
 
     fn get_new_state(&self) -> ([usize; 2], [isize; 2]) {
         let [current_row, current_col] = self.position;
-        println!("Current row: {}, col: {}", current_row, current_col);
-        let current_face_coords = [current_row/self._side, current_col/self._side];
-        println!("current_face_coords: {:?}", current_face_coords);
+        let current_face_coords = [current_row/self.side_length, current_col/self.side_length];
         let mut current_face = FACES_COORDS.iter().position(|&x| x == current_face_coords).unwrap();
-        let [shifted_row, shifted_col] = [current_row % self._side, current_col % self._side];
+        let [shifted_row, shifted_col] = [current_row % self.side_length, current_col % self.side_length];
         let mut new_position;
         let mut new_orientation = self.orientation;
+        let aux_last = (self.side_length - 1) as isize;
         match self.get_limit_side(shifted_row, shifted_col) {
             Some(limit_id) => {
                 let [new_face, new_edge] = EDGE_TRANSITION[current_face][limit_id];
-                let edge_diff = (limit_id as isize - new_edge as isize + 2) % 4;
+                let edge_diff = (limit_id as isize - new_edge as isize + 6) % 4;
                 current_face = new_face;
                 // 0 (no rotation)
                 // 1 (-90)
@@ -258,22 +250,22 @@ impl CubicPlayground {
                 }
                 if edge_diff == 0 {
                     new_position = [
-                        (shifted_row as isize - self._side as isize * self.orientation[0]) as usize,
-                        (shifted_col as isize - self._side as isize * self.orientation[1]) as usize
+                        (shifted_row as isize - aux_last * self.orientation[0]) as usize,
+                        (shifted_col as isize - aux_last * self.orientation[1]) as usize
                     ];
                 } else if edge_diff == 1 {
                     new_position = [
-                        (shifted_col as isize - self.orientation[1] * self._side as isize) as usize,
-                        (self._side - shifted_row) * self.orientation[1].abs() as usize + shifted_row * self.orientation[0].abs() as usize
+                        (shifted_col as isize - self.orientation[1] * aux_last) as usize,
+                        (aux_last as usize - shifted_row) * self.orientation[1].abs() as usize + shifted_row * self.orientation[0].abs() as usize
                     ];
                 } else if edge_diff == 2 {
                     new_position = [
-                        (self.orientation[0] * shifted_row as isize + self.orientation[1].abs()*(self._side - shifted_row) as isize) as usize,
-                        (self.orientation[1] * shifted_col as isize + self.orientation[0].abs()*(self._side - shifted_col) as isize) as usize
+                        (self.orientation[0] * shifted_row as isize + self.orientation[1].abs()*(aux_last - shifted_row as isize)) as usize,
+                        (self.orientation[1] * shifted_col as isize + self.orientation[0].abs()*(aux_last - shifted_col as isize)) as usize
                     ];
                 } else if edge_diff == 3 {
                     new_position = [
-                        (self.orientation[0] * (self._side - shifted_col) as isize) as usize + self.orientation[1].abs() as usize * shifted_col,
+                        (self.orientation[0] * (aux_last - shifted_col as isize)) as usize + self.orientation[1].abs() as usize * shifted_col,
                         shifted_row
                     ];
                 } else {
@@ -281,8 +273,8 @@ impl CubicPlayground {
                 }
                 let [face_row, face_col] = FACES_COORDS[current_face];
                 new_position = [
-                    new_position[0] + face_row * self._side,
-                    new_position[1] + face_col * self._side
+                    new_position[0] + face_row * self.side_length,
+                    new_position[1] + face_col * self.side_length
                 ];
             }
             None => {
@@ -297,13 +289,13 @@ impl CubicPlayground {
 
 
     fn get_limit_side(&self, row: usize, col: usize) -> Option<usize> {
-        if row == 0 {
+        if row == 0 && self.orientation[0] == -1 {
             Some(2)
-        } else if row == self._side - 1 {
+        } else if row == self.side_length - 1 && self.orientation[0] == 1 {
             Some(0)
-        } else if col == 0 {
+        } else if col == 0 && self.orientation[1] == -1 {
             Some(3)
-        } else if col == self._side - 1 {
+        } else if col == self.side_length - 1 && self.orientation[1] == 1 {
             Some(1)
         } else {
             None
@@ -338,7 +330,6 @@ fn get_pbc_position(position: usize, direction: isize, limits: [usize; 2]) -> us
 }
 
 fn read_file() -> BufReader<File> {
-    let file = File::open("../example.txt").unwrap();
     let file = File::open("../input.txt").unwrap();
     BufReader::new(file)
 }
@@ -403,13 +394,9 @@ fn parse_commands(commands: &String) -> Vec<(usize, char)> {
 
 fn part1() {
     let (mut playground, commands) = parse_input();
-    // println!("{}", playground);
     for command in commands {
-        // println!("Applying command: {:?}", command);
         playground.apply_command(command);
-        // println!("{}", playground);
     }
-
     println!("Part 1: {}", playground.get_score());
 }
 
