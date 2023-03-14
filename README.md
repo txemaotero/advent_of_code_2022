@@ -159,3 +159,26 @@ Operations with monkey yelling numbers and operations.
 
 - Part 1: Result of root.
 - Part 2: Number of humn to equal root numbers.
+
+## Day 22
+
+Walk throu a map with obstacles.
+
+- Part 1: Apply pbcs
+- Part 2: The map is a cube so the pbcs are no so easy
+
+## Day 23
+
+Elves sparsing following some rules. Count the number of empty tiles.
+
+- Part 1: After 10 rounds.
+- Part 2: Until they are completely sparse.
+
+## Day 24
+
+Path finding with moving blizzards
+
+- Part 1: Time to find the exit
+- Part 2: Time to find the exit, go back to the start and go again to the exit.
+
+## Day 25
