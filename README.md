@@ -182,3 +182,9 @@ Path finding with moving blizzards
 - Part 2: Time to find the exit, go back to the start and go again to the exit.
 
 ## Day 25
+
+Work with numbers in base 5.
+
+- Part 1: Calculate the sum and convert back to base 5
+- Part 5: FINISH!!!
+
